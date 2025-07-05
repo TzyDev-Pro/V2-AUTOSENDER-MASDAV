@@ -20,7 +20,6 @@ Dirancang untuk mengirim pesan massal ke WhatsApp dengan sistem owner, tombol in
 | 📄 Update Pesan & Nomor          | Langsung dari WhatsApp tanpa perlu buka file                              |
 | 🧠 Get ID & Member Grup          | Ambil ID grup dan daftar nomor anggotanya                                 |
 | 📂 Logging Lengkap               | Simpan semua hasil sukses & gagal ke folder `logs/`                       |
-| 📲 Tombol Interaktif             | Setiap pesan memiliki tombol "Profil Perusahaan" & "Kontak Admin"         |
 | 🛡️ Anti Akses Liar               | Non-owner tidak akan mendapat respon apapun                               |
 
 ---
@@ -67,13 +66,6 @@ node index.js
 | `.listowner`                | Tampilkan semua nomor owner                                |
 | `.addowner <628xxx>`        | Tambahkan nomor owner                                      |
 | `.delowner <628xxx>`        | Hapus owner                                                |
-
-### 📥 Format Kirim Pesan
-
-Setelah `.mulai`, setiap pesan akan dikirim ke nomor dalam `nomor.txt` dan disertai dengan 2 tombol:
-
-- 📄 **Profil Perusahaan** → Menampilkan isi dari `profile.txt`
-- ☎️ **Kontak Admin Utama** → Menampilkan isi dari `admin_contact.txt`
 
 ---
 

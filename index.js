@@ -1,10 +1,10 @@
-// WhatsApp Bot AutoSender Final Version
 const { default: makeWASocket, useMultiFileAuthState, delay } = require('@whiskeysockets/baileys')
 const fs = require('fs-extra')
 const chalk = require('chalk')
 const qrcode = require('qrcode-terminal')
 const os = require('os')
 const moment = require('moment-timezone')
+const P = require('pino')
 const { validateNumber } = require('./utils/validate')
 const { logSuccess, logFailed } = require('./utils/logger')
 
@@ -36,10 +36,10 @@ function tampilMenu() {
 │  • .updateno <628xxx,...>
 │  • .mulai ➜ Kirim pesan
 │  • .getidgroup ➜ Ambil ID grup
-│  • .getmembergroup <id> ➜ Ambil nomor anggota grup
+│  • .getmembergroup <id>
 │
 │ 👑 *Owner Control:*
-│  • .listowner ➜ Lihat owner
+│  • .listowner
 │  • .addowner <628xxx>
 │  • .delowner <628xxx>
 └───────────────────────
@@ -60,7 +60,8 @@ async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth')
     const sock = makeWASocket({
         auth: state,
-        printQRInTerminal: false
+        printQRInTerminal: false,
+        logger: P({ level: 'silent' }) // Menonaktifkan log JSON
     })
 
     sock.ev.on('creds.update', saveCreds)
@@ -72,6 +73,7 @@ async function connectToWhatsApp() {
             qrcode.generate(qr, { small: true })
         }
         if (connection === 'open') {
+            console.clear()
             console.log(chalk.green('✅ Bot berhasil terhubung ke WhatsApp'))
         }
         if (connection === 'close') {
@@ -89,6 +91,8 @@ async function connectToWhatsApp() {
         const owners = JSON.parse(fs.readFileSync(OWNER_FILE))
 
         if (!owners.includes(sender)) return
+
+        console.log(chalk.yellow(`📩 Perintah dari owner ${sender.replace(/@.*/, '')}: ${text}`))
 
         if (text.startsWith('.menu')) {
             await sock.sendMessage(sender, { text: tampilMenu() })
@@ -145,7 +149,7 @@ async function connectToWhatsApp() {
                 await sock.sendMessage(sender, {
                     text: `👥 *Anggota Grup: ${meta.subject}*\n\n${members}`
                 })
-            } catch (e) {
+            } catch {
                 await sock.sendMessage(sender, { text: '❌ Gagal mengambil data. Pastikan bot masih berada di grup tersebut.' })
             }
         }
@@ -169,12 +173,14 @@ async function jalankanPengiriman(sock, dari) {
             await sock.sendMessage(jid, { text: pesan })
             logSuccess(nomor)
             suksesList.push(nomor)
+            console.log(chalk.green(`✅ [BERHASIL] ${nomor}`))
         } catch {
             logFailed(nomor)
             gagalList.push(nomor)
+            console.log(chalk.red(`❌ [GAGAL] ${nomor}`))
         }
 
-        if ((i + 1) % 5 === 0 && i + 1 < daftar.length) await delay(180000)
+        if ((i + 1) % 5 === 0 && i + 1 < daftar.length) await delay(300000)
         else await delay(800)
     }
 
